@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env
+
+# IDEs and Temporary Files
+.vscode/
+.idea/
+~$*.docx
+~$*.pptx
+*.tmp
+*.bak
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Machine Learning Checkpoints
+*.h5
+*.keras
+*.ckpt
+
+# Unrelated Folders to Exclude from Version Control
+All Members Projects/
+Anaconda code/
+Practice codes/
+IPL project/
+reports/
+*.zip
