@@ -1,13 +1,6 @@
 """
-IPL Score Prediction - Benchmark Evaluation Script
-
-This script evaluates baseline machine learning models on the IPL dataset using
-methodologically sound, leak-free evaluation protocols:
-1. Match-Grouped Split: Strict match isolation preventing within-match data leakage.
-2. Temporal Split: Historical training (<=2014), validation (2015), and future holdout testing (2016-2017).
-
-All preprocessing transformers (OneHotEncoder with drop='first' and MinMaxScaler)
-are fitted strictly on the training partition to prevent preprocessing leakage.
+Evaluates baseline regression models (Dummy, Linear, Ridge) on IPL match data
+using grouped and temporal splits to avoid data leakage.
 """
 
 from pathlib import Path

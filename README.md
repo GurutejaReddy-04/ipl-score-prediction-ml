@@ -13,7 +13,7 @@ Originally developed as a B.Tech Minor Project in the Department of Electronics 
 ---
 
 ## Overview & Scope
-Predicting final innings totals in Twenty20 cricket is challenging due to the dynamic interplay of match states (overs, wickets, cumulative runs) and match context (venue, batting and bowling lineups). 
+This project predicts final innings totals in Twenty20 cricket based on current match states and context.
 
 This project was built to explore regression modeling on historical ball-by-ball IPL match telemetry:
 - **Classical Baselines**: Dummy estimators, Ordinary Least Squares Linear Regression, and Ridge Regression.

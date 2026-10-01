@@ -1,12 +1,6 @@
 """
-IPL Score Prediction Project
-
-This script builds a neural network regression model using Keras and TensorFlow
-to predict the total score of an Indian Premier League (IPL) cricket match based
-on current match state parameters such as venue, batting team, bowling team,
-current wickets, current overs, and current runs.
-
-It also provides an interactive IPyWidgets interface to test the model.
+Trains a Keras sequential model to predict final IPL match scores
+based on mid-match telemetry. Includes a Jupyter widget UI for interactive testing.
 """
 
 import warnings
@@ -30,13 +24,11 @@ warnings.filterwarnings("ignore")
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "ipl.csv"
 
-# Load dataset
 if not DATA_PATH.exists():
     raise FileNotFoundError(f"Dataset not found at expected path: {DATA_PATH}")
 
 ipl = pd.read_csv(DATA_PATH)
 
-# Select relevant features and target variable
 features = ['venue', 'bat_team', 'bowl_team', 'wickets', 'overs', 'runs']
 target = 'total'
 
@@ -44,7 +36,6 @@ df = ipl[features + [target]]
 X = df[features].copy()
 y = df[target].copy()
 
-# Encode categorical variables using LabelEncoder
 label_encoders: Dict[str, preprocessing.LabelEncoder] = {}
 categorical_features = ['venue', 'bat_team', 'bowl_team']
 
@@ -53,15 +44,12 @@ for feature in categorical_features:
     label_encoders[feature] = le
     X.loc[:, feature] = le.fit_transform(X[feature])
 
-# Split the dataset into training and testing sets (80/20 split)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Scale features using MinMaxScaler
 scaler = MinMaxScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# Define the neural network architecture
 model = keras.Sequential([
     keras.layers.Input(shape=(X_train_scaled.shape[1],)),
     keras.layers.Dense(512, activation='relu'),
