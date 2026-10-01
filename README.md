@@ -17,7 +17,7 @@ Predicting final innings totals in Twenty20 cricket is challenging due to the dy
 
 This project was built to explore regression modeling on historical ball-by-ball IPL match telemetry:
 - **Classical Baselines**: Dummy estimators, Ordinary Least Squares Linear Regression, and Ridge Regression.
-- **Deep Neural Network**: A 3-layer Sequential MLP (512 $\rightarrow$ 216 $\rightarrow$ 1) optimized with Huber loss.
+- **Deep Neural Network**: A 3-layer Sequential MLP (512 → 216 → 1) optimized with Huber loss.
 - **Interactive UI**: An IPyWidgets interface within Jupyter Notebook allowing interactive match scenario predictions.
 - **Methodological Evaluation**: Comparative analysis between the historical row-wise experiment and leak-free match-grouped and temporal evaluation protocols.
 
@@ -57,8 +57,8 @@ This project was built to explore regression modeling on historical ball-by-ball
 | :--- | :--- | :---: | :--- |
 | **Original 80/20 Random Row Split** | Dummy Regressor (Mean baseline) | 22.76 | Audit reconstruction (target mean = 159.9 runs) |
 | | Dummy Regressor (Median baseline) | 22.74 | Audit reconstruction (target median = 158 runs) |
-| | Multiple Linear Regression | 14.87 | Audit reconstruction ($R^2 = 0.5191$) |
-| | Ridge Regression ($\alpha=1.0$) | 14.87 | Audit reconstruction ($R^2 = 0.5191$) |
+| | Multiple Linear Regression | 14.87 | Audit reconstruction (R² = 0.5191) |
+| | Ridge Regression (α = 1.0) | 14.87 | Audit reconstruction (R² = 0.5191) |
 | | **Deep Neural Network** | **12.93** | Original notebook result (Cell 23) |
 
 ---
@@ -66,7 +66,7 @@ This project was built to explore regression modeling on historical ball-by-ball
 ### Table 2: Methodologically Corrected Benchmark (Strict Holdout Evaluation)
 To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. All benchmarks below evaluate on untouched holdout test matches and are reproducible under the documented, seed-controlled environment by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
 
-| Protocol | Partition Breakdown (Matches / Rows) | Dummy Mean MAE | Linear Regression MAE | Ridge ($\alpha=1.0$) MAE | Neural Network MAE |
+| Protocol | Partition Breakdown (Matches / Rows) | Dummy Mean MAE | Linear Regression MAE | Ridge (α = 1.0) MAE | Neural Network MAE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **Match-Grouped Split** | Train: 431 / 53,046<br>Val: 61 / 7,507<br>Test: 125 / 15,461 | **22.47** | **15.32** | **15.32** | **23.59** |
 | **Temporal Split** | Train (≤2014): 448 / 55,226<br>Val (2015): 55 / 6,714<br>Test (2016–17): 114 / 14,074 | **22.10** | **15.53** | **15.51** | **24.21** |
@@ -75,7 +75,7 @@ To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='firs
 > **Key Methodological Takeaways**:
 > 1. **Match-Grouped Split**: Strictly groups by match ID (`mid`), guaranteeing that no delivery from a test match appears in the training partition. Classical linear baselines achieve **15.32 MAE** on completely unseen matches.
 > 2. **Temporal Split**: Tests true forecasting into future seasons (train on ≤2014, validate on 2015, test on 2016–2017). Using `drop='first'` prevents dummy-variable collinearity, while `handle_unknown='ignore'` gracefully encodes unseen franchise additions in test seasons without feature dimension shifts, enabling Linear Regression to achieve **15.53 MAE** (matching Ridge's **15.51 MAE**).
-> 3. **Neural Network Generalization Insight**: Under leak-free holdout evaluation, the fixed 512 $\rightarrow$ 216 $\rightarrow$ 1 MLP achieves **23.59 MAE** on unseen matches and **24.21 MAE** on future seasons, underperforming the linear baselines and indicating poor out-of-sample generalization for this unregularized configuration. The original 12.93 MAE should not be interpreted as a directly comparable estimate of unseen-match performance because its row-wise split allowed within-match overlap and reused the test set for validation.
+> 3. **Neural Network Generalization Insight**: Under leak-free holdout evaluation, the fixed 512 → 216 → 1 MLP achieves **23.59 MAE** on unseen matches and **24.21 MAE** on future seasons, underperforming the linear baselines and indicating poor out-of-sample generalization for this unregularized configuration. The original 12.93 MAE should not be interpreted as a directly comparable estimate of unseen-match performance because its row-wise split allowed within-match overlap and reused the test set for validation.
 > 4. For deep architectural and methodology details, see [`docs/architecture.md`](./docs/architecture.md).
 
 ---

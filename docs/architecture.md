@@ -18,7 +18,7 @@ From the 15 raw columns in `data/ipl.csv`, the modeling pipeline extracts 6 pred
 ### Preprocessing Strategies
 1. **Historical Academic Implementation** (`LabelEncoder` + `MinMaxScaler`):
    - Categorical columns are converted to integer ranks via scikit-learn's `LabelEncoder`.
-   - Numerical columns are normalized to $[0, 1]$ via `MinMaxScaler`.
+   - Numerical columns are normalized to [0, 1] via `MinMaxScaler`.
    - *Limitation*: Treats nominal categories (venues, team names) as ordinal integers within a continuous metric space.
 
 2. **Corrected Benchmark Implementation** (`OneHotEncoder` + `MinMaxScaler`):
@@ -48,7 +48,10 @@ Output Layer (1 unit, Linear activation)
 
 ### Loss Function & Optimization
 - **Loss Function**: Huber Loss ($\delta = 1.0$)
-  $$L_\delta(y, \hat{y}) = \begin{cases} \frac{1}{2}(y - \hat{y})^2 & \text{for } |y - \hat{y}| \le \delta \\ \delta(|y - \hat{y}| - \frac{1}{2}\delta) & \text{otherwise} \end{cases}$$
+  - **Quadratic regime** ($|y - \hat{y}| \le \delta$, MSE-like for small errors):
+    $$L_\delta(y, \hat{y}) = \frac{1}{2}(y - \hat{y})^2$$
+  - **Linear regime** ($|y - \hat{y}| > \delta$, MAE-like robustness against extreme totals):
+    $$L_\delta(y, \hat{y}) = \delta \cdot |y - \hat{y}| - \frac{1}{2}\delta^2$$
   Huber loss behaves quadratically for small errors and linearly for large errors, providing robustness against extreme cricket totals (e.g., uncharacteristic collapse or record chase).
 - **Optimizer**: Adam ($\alpha = 0.001$)
 - **Training Epochs & Batch Size**: 50 epochs, batch size 64.
