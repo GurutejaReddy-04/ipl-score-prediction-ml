@@ -64,7 +64,7 @@ This project was built to explore regression modeling on historical ball-by-ball
 ---
 
 ### Table 2: Methodologically Corrected Benchmark (Strict Holdout Evaluation)
-To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. All benchmarks below evaluate on untouched holdout test matches and are reproduced from the committed seed-controlled configuration by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
+To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. All benchmarks below evaluate on untouched holdout test matches and are reproducible under the documented, seed-controlled environment by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
 
 | Protocol | Partition Breakdown (Matches / Rows) | Dummy Mean MAE | Linear Regression MAE | Ridge ($\alpha=1.0$) MAE | Neural Network MAE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -75,7 +75,7 @@ To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='firs
 > **Key Methodological Takeaways**:
 > 1. **Match-Grouped Split**: Strictly groups by match ID (`mid`), guaranteeing that no delivery from a test match appears in the training partition. Classical linear baselines achieve **15.32 MAE** on completely unseen matches.
 > 2. **Temporal Split**: Tests true forecasting into future seasons (train on ≤2014, validate on 2015, test on 2016–2017). Using `drop='first'` prevents dummy-variable collinearity when new franchises appear in test seasons, enabling Linear Regression to achieve **15.53 MAE** (matching Ridge's **15.51 MAE**).
-> 3. **Neural Network Generalization Insight**: Under leak-free holdout evaluation, the unregularized, unpruned deep neural network (512 $\rightarrow$ 216 $\rightarrow$ 1, 50 epochs) overfits the training matches and yields **23.59 MAE** (grouped) and **24.21 MAE** (temporal). This reveals that the original student result (12.93 MAE) was driven primarily by within-match trajectory memorization rather than true inductive generalization, and that simpler regularized linear models (~15.3 MAE) generalize far better without early stopping or weight decay.
+> 3. **Neural Network Generalization Insight**: Under leak-free holdout evaluation, the fixed 512 $\rightarrow$ 216 $\rightarrow$ 1 MLP achieves **23.59 MAE** on unseen matches and **24.21 MAE** on future seasons, underperforming the linear baselines and indicating poor out-of-sample generalization for this unregularized configuration. The original 12.93 MAE should not be interpreted as a directly comparable estimate of unseen-match performance because its row-wise split allowed within-match overlap and reused the test set for validation.
 > 4. For deep architectural and methodology details, see [`docs/architecture.md`](./docs/architecture.md).
 
 ---

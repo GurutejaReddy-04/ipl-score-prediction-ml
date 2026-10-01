@@ -92,5 +92,5 @@ Seasons 2008–2017
 Under these protocols:
 1. No match appears in more than one partition.
 2. Preprocessors are fitted strictly on the training partition.
-3. Linear baselines (Dummy Regressor, Linear Regression, Ridge) establish lower bounds for regression performance.
+3. Linear baselines (Dummy Regressor, Linear Regression, Ridge) establish reference performance for comparison.
 4. Deep learning models evaluate against untouched test matches after freezing parameters.
