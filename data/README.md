@@ -31,6 +31,7 @@ This directory contains the historical Indian Premier League (IPL) cricket match
 | `total` | Integer | **Prediction Target**: Total final innings score |
 
 ## Provenance & Attribution
-- **Source**: Kaggle open dataset collection (*"IPL Dataset Season 2008 to 2017"*).
-- **Data Heritage**: The dataset represents historical match scorecard telemetry from the first 10 seasons of the Indian Premier League.
+- **Upstream Source**: Kaggle – [IPL Dataset Season 2008 to 2017 (yuvrajdagur/ipl-dataset-season-2008-to-2017)](https://www.kaggle.com/datasets/yuvrajdagur/ipl-dataset-season-2008-to-2017)
+- **Data Heritage**: The dataset represents historical match scorecard telemetry from the first 10 seasons of the Indian Premier League (2008–2017).
+- **Upstream License**: Refer to the upstream Kaggle dataset page for the specific license terms established by the dataset publisher.
 - **Redistribution Terms**: The dataset is included in this repository strictly in the form utilized for the academic college project. The MIT software license covering this repository's source code does not assert copyright or grant license terms over this third-party sports dataset. Users redistributing or utilizing this data independently should consult upstream terms.

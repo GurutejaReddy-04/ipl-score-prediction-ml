@@ -79,8 +79,8 @@ To measure true generalization performance, two leak-free protocols are defined:
 Protocol 1: Match-Grouped Split (Unseen Matches)
 Total 617 Matches
   ├── 70% Train Matches (431 matches / 53,046 deliveries)  ── Preprocessing fit & model training
-  ├── 10% Validation Matches (62 matches / 7,631 deliveries) ── NN epoch validation & tuning
-  └── 20% Untouched Test Matches (124 matches / 15,337 deliveries) ── Final single-pass evaluation
+  ├── 10% Validation Matches (61 matches / 7,507 deliveries) ── NN epoch validation & tuning
+  └── 20% Untouched Test Matches (125 matches / 15,461 deliveries) ── Final single-pass evaluation
 
 Protocol 2: Temporal Split (Future Seasons Forecasting)
 Seasons 2008–2017

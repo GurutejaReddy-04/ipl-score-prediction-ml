@@ -48,34 +48,35 @@ This project was built to explore regression modeling on historical ball-by-ball
 
 ## Experimental Results & Benchmark Evaluation
 
-### Table 1: Historical Academic Experiment (Archival Record)
+### Table 1: Historical Academic Result & Audit Reconstruction
 > [!NOTE]
 > **Historical academic result — not directly comparable to the corrected benchmark**
-> This result follows the original academic implementation (Colab notebook using LabelEncoder and an 80/20 random row-wise split). It is retained as an archival documentation record and is not claimed to be reproduced by the new benchmark script. It reflects within-match delivery overlap and reuse of the test set for validation during training.
+> The **12.93 MAE** neural network result follows the original academic implementation (Colab notebook using LabelEncoder and an 80/20 random row-wise split) and is preserved as an archival documentation record. The baseline metrics (Dummy, Linear Regression, Ridge) were reconstructed during the audit under the identical historical row-wise split protocol. This protocol reflects within-match delivery overlap and reuse of the test set for validation during training.
 
 | Protocol | Model | Test MAE (Runs) | Notes |
 | :--- | :--- | :---: | :--- |
-| **Original 80/20 Random Row Split** | Dummy Regressor (Mean baseline) | 22.76 | Baseline predicting training target mean (159.9 runs) |
-| | Dummy Regressor (Median baseline) | 22.74 | Baseline predicting training target median (158 runs) |
-| | Multiple Linear Regression | 14.87 | Baseline ordinary least squares ($R^2 = 0.5191$) |
-| | Ridge Regression ($\alpha=1.0$) | 14.87 | Baseline regularized linear regression ($R^2 = 0.5191$) |
-| | **Deep Neural Network** | **12.93** | Historical notebook result (Cell 23) |
+| **Original 80/20 Random Row Split** | Dummy Regressor (Mean baseline) | 22.76 | Audit reconstruction (target mean = 159.9 runs) |
+| | Dummy Regressor (Median baseline) | 22.74 | Audit reconstruction (target median = 158 runs) |
+| | Multiple Linear Regression | 14.87 | Audit reconstruction ($R^2 = 0.5191$) |
+| | Ridge Regression ($\alpha=1.0$) | 14.87 | Audit reconstruction ($R^2 = 0.5191$) |
+| | **Deep Neural Network** | **12.93** | Original notebook result (Cell 23) |
 
 ---
 
 ### Table 2: Methodologically Corrected Benchmark (Strict Holdout Evaluation)
-To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. The benchmarks below evaluate on untouched holdout test matches and are reproduced deterministically by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
+To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. All benchmarks below evaluate on untouched holdout test matches and are reproduced from the committed seed-controlled configuration by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
 
 | Protocol | Partition Breakdown (Matches / Rows) | Dummy Mean MAE | Linear Regression MAE | Ridge ($\alpha=1.0$) MAE | Neural Network MAE |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **Match-Grouped Split** | Train: 431 / 53,046<br>Val: 61 / 7,507<br>Test: 125 / 15,461 | **22.47** | **15.32** | **15.32** | **TBD — measured after leak-free retraining** |
-| **Temporal Split** | Train (≤2014): 448 / 55,226<br>Val (2015): 55 / 6,714<br>Test (2016–17): 114 / 14,074 | **22.10** | **15.53** | **15.51** | **TBD — measured after leak-free retraining** |
+| **Match-Grouped Split** | Train: 431 / 53,046<br>Val: 61 / 7,507<br>Test: 125 / 15,461 | **22.47** | **15.32** | **15.32** | **23.59** |
+| **Temporal Split** | Train (≤2014): 448 / 55,226<br>Val (2015): 55 / 6,714<br>Test (2016–17): 114 / 14,074 | **22.10** | **15.53** | **15.51** | **24.21** |
 
 > [!TIP]
 > **Key Methodological Takeaways**:
 > 1. **Match-Grouped Split**: Strictly groups by match ID (`mid`), guaranteeing that no delivery from a test match appears in the training partition. Classical linear baselines achieve **15.32 MAE** on completely unseen matches.
 > 2. **Temporal Split**: Tests true forecasting into future seasons (train on ≤2014, validate on 2015, test on 2016–2017). Using `drop='first'` prevents dummy-variable collinearity when new franchises appear in test seasons, enabling Linear Regression to achieve **15.53 MAE** (matching Ridge's **15.51 MAE**).
-> 3. For deep architectural and methodology details, see [`docs/architecture.md`](./docs/architecture.md).
+> 3. **Neural Network Generalization Insight**: Under leak-free holdout evaluation, the unregularized, unpruned deep neural network (512 $\rightarrow$ 216 $\rightarrow$ 1, 50 epochs) overfits the training matches and yields **23.59 MAE** (grouped) and **24.21 MAE** (temporal). This reveals that the original student result (12.93 MAE) was driven primarily by within-match trajectory memorization rather than true inductive generalization, and that simpler regularized linear models (~15.3 MAE) generalize far better without early stopping or weight decay.
+> 4. For deep architectural and methodology details, see [`docs/architecture.md`](./docs/architecture.md).
 
 ---
 

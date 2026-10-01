@@ -126,6 +126,10 @@ def evaluate_baselines_on_split(
     try:
         import tensorflow as tf
         import keras
+        # Set random seeds for controlled execution
+        tf.random.set_seed(42)
+        if hasattr(keras, 'utils') and hasattr(keras.utils, 'set_random_seed'):
+            keras.utils.set_random_seed(42)
         # Build matching sequential model
         nn_model = keras.Sequential([
             keras.layers.Input(shape=(X_tr_proc.shape[1],)),
