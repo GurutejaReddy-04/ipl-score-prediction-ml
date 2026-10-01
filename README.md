@@ -1,86 +1,146 @@
-# IPL Score Prediction (Academic Project)
+# IPL Score Prediction (Academic ML Project)
 
-This repository contains an academic college project developed for predicting the final score of Indian Premier League (IPL) cricket matches using machine learning and deep learning techniques. 
+An academic machine learning project demonstrating end-to-end data preprocessing, classical regression baselines, a deep neural network, evaluation methodology, and an interactive prediction interface for Indian Premier League (IPL) cricket match scores.
 
-The project is hosted here for portfolio and archival purposes and represents the joint effort of our project team.
+Originally developed as a B.Tech Minor Project in the Department of Electronics and Communication Engineering at the **National Institute of Technology (NIT) Andhra Pradesh** under the mentorship of **Dr. B. Thulasya Naik**.
 
-## Contributors
-- Guruteja Reddy Nallachi
-- Team Member 3
-- Team Member 3
+---
 
-## Overview & Problem Statement
-Predicting the score in a T20 cricket match is challenging due to the dynamic nature of the game. This project aims to build a robust predictive model that estimates the final inning score based on the current match state (runs, wickets, overs) and match context (venue, batting and bowling teams).
+## Project Attribution & Maintainer
+- **Repository Maintainer**: [Guruteja Reddy Nallachi](https://github.com/GurutejaReddy-04)
+- **Academic Context**: Developed as a collaborative undergraduate minor project at NIT Andhra Pradesh. The repository is maintained for portfolio and educational reference. Contributions from undergraduate student co-authors are gratefully acknowledged from the original academic submission.
 
-## Features
-- **Deep Learning Model**: Utilizes a Keras/TensorFlow sequential neural network optimized with Huber loss to handle potential outliers in cricket scores.
-- **Data Preprocessing**: Robust pipeline using Label Encoding for categorical variables and Min-Max Scaling for numerical variables.
-- **Interactive UI**: Includes an IPyWidgets interface within the Jupyter Notebook (and accessible via script in supported environments) for dynamic predictions.
+---
+
+## Overview & Scope
+Predicting final innings totals in Twenty20 cricket is challenging due to the dynamic interplay of match states (overs, wickets, cumulative runs) and match context (venue, batting and bowling lineups). 
+
+This project was built to explore regression modeling on historical ball-by-ball IPL match telemetry:
+- **Classical Baselines**: Dummy estimators, Ordinary Least Squares Linear Regression, and Ridge Regression.
+- **Deep Neural Network**: A 3-layer Sequential MLP (512 $\rightarrow$ 216 $\rightarrow$ 1) optimized with Huber loss.
+- **Interactive UI**: An IPyWidgets interface within Jupyter Notebook allowing interactive match scenario predictions.
+- **Methodological Evaluation**: Comparative analysis between the historical row-wise experiment and leak-free match-grouped and temporal evaluation protocols.
+
+---
 
 ## Project Structure
 ```text
 .
 ├── data/
-│   └── ipl.csv                  # Dataset containing ball-by-ball IPL match data
-├── docs/                        # Architecture notes, diagrams, and project documentation
+│   ├── README.md                           # Dataset schema and provenance details
+│   └── ipl.csv                             # Historical IPL ball-by-ball dataset (2008–2017)
+├── docs/
+│   ├── .gitkeep
+│   └── architecture.md                     # System architecture & evaluation methodology
 ├── notebooks/
-│   └── IPL Score Prediction Project.ipynb  # Jupyter Notebook for EDA and Modeling
-├── reports/
-│   └── (Project reports, presentations, and documentation)
+│   └── IPL Score Prediction Project.ipynb  # Interactive EDA and model exploration notebook
 ├── src/
-│   └── ipl_score_prediction_project.py     # Core training and prediction script
-├── .gitignore                   # Excluded files and directories
-├── README.md                    # Project documentation
-└── requirements.txt             # Python dependencies
+│   ├── evaluate_baselines.py               # Auditable leak-free benchmark evaluation script
+│   └── ipl_score_prediction_project.py     # Core training script with IPyWidgets UI
+├── .gitignore                              # Git exclusion rules
+├── LICENSE                                 # MIT open-source license
+├── README.md                               # Project documentation
+└── requirements.txt                        # Tested environment dependencies
 ```
+*(Note: Internal university assessment documents, presentation slides, and intermediate scratch files are excluded from public version control via `.gitignore`.)*
 
-## Technologies & Architecture
-- **Data Processing**: `pandas`, `numpy`, `scikit-learn`
-- **Model Training**: `keras`, `tensorflow`
-- **Architecture**: A deep neural network with layers of size (512 -> 216 -> 1) utilizing ReLU activation for hidden layers and linear activation for the final regression output.
-- **Evaluation**: Mean Absolute Error (MAE).
+---
+
+## Experimental Results & Benchmark Evaluation
+
+### Table 1: Historical Academic Experiment (Archival Record)
+> [!NOTE]
+> **Historical academic result — not directly comparable to the corrected benchmark**
+> This result follows the original academic implementation (Colab notebook using LabelEncoder and an 80/20 random row-wise split). It is retained as an archival documentation record and is not claimed to be reproduced by the new benchmark script. It reflects within-match delivery overlap and reuse of the test set for validation during training.
+
+| Protocol | Model | Test MAE (Runs) | Notes |
+| :--- | :--- | :---: | :--- |
+| **Original 80/20 Random Row Split** | Dummy Regressor (Mean baseline) | 22.76 | Baseline predicting training target mean (159.9 runs) |
+| | Dummy Regressor (Median baseline) | 22.74 | Baseline predicting training target median (158 runs) |
+| | Multiple Linear Regression | 14.87 | Baseline ordinary least squares ($R^2 = 0.5191$) |
+| | Ridge Regression ($\alpha=1.0$) | 14.87 | Baseline regularized linear regression ($R^2 = 0.5191$) |
+| | **Deep Neural Network** | **12.93** | Historical notebook result (Cell 23) |
+
+---
+
+### Table 2: Methodologically Corrected Benchmark (Strict Holdout Evaluation)
+To prevent delivery-level data leakage, preprocessing (`OneHotEncoder(drop='first', handle_unknown='ignore')` + `MinMaxScaler()`) is fitted strictly on the training partition. The benchmarks below evaluate on untouched holdout test matches and are reproduced deterministically by running [`src/evaluate_baselines.py`](./src/evaluate_baselines.py):
+
+| Protocol | Partition Breakdown (Matches / Rows) | Dummy Mean MAE | Linear Regression MAE | Ridge ($\alpha=1.0$) MAE | Neural Network MAE |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Match-Grouped Split** | Train: 431 / 53,046<br>Val: 61 / 7,507<br>Test: 125 / 15,461 | **22.47** | **15.32** | **15.32** | **TBD — measured after leak-free retraining** |
+| **Temporal Split** | Train (≤2014): 448 / 55,226<br>Val (2015): 55 / 6,714<br>Test (2016–17): 114 / 14,074 | **22.10** | **15.53** | **15.51** | **TBD — measured after leak-free retraining** |
+
+> [!TIP]
+> **Key Methodological Takeaways**:
+> 1. **Match-Grouped Split**: Strictly groups by match ID (`mid`), guaranteeing that no delivery from a test match appears in the training partition. Classical linear baselines achieve **15.32 MAE** on completely unseen matches.
+> 2. **Temporal Split**: Tests true forecasting into future seasons (train on ≤2014, validate on 2015, test on 2016–2017). Using `drop='first'` prevents dummy-variable collinearity when new franchises appear in test seasons, enabling Linear Regression to achieve **15.53 MAE** (matching Ridge's **15.51 MAE**).
+> 3. For deep architectural and methodology details, see [`docs/architecture.md`](./docs/architecture.md).
+
+---
 
 ## Setup & Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/GurutejaReddy-04/ipl-score-prediction-ml.git
-   cd ipl-score-prediction
-   ```
+### 1. Clone the repository
+```bash
+git clone https://github.com/GurutejaReddy-04/ipl-score-prediction-ml.git
+cd ipl-score-prediction-ml
+```
 
-2. **Create a virtual environment (Recommended):**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### 2. Create and activate a virtual environment
+```bash
+# On Linux / macOS:
+python -m venv venv
+source venv/bin/activate
 
-3. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: Dependency versions in `requirements.txt` are minimum recommended estimates based on the syntax used, as the original exact environment was not exported.*
+# On Windows (PowerShell):
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+### 3. Install verified dependencies
+```bash
+pip install -r requirements.txt
+```
+
+> **Tested Environment**: Python 3.10 / 3.11 on Windows 11 and Ubuntu Linux (CPU execution). The original exploratory notebook was developed in Google Colab.
+
+---
 
 ## Usage
 
-### 1. Jupyter Notebook
-Launch Jupyter Notebook to interact with the IPyWidgets interface directly:
+### 1. Run the Auditable Benchmark Evaluation
+Reproduce the clean leak-free baseline comparisons in Table 2:
+```bash
+python src/evaluate_baselines.py
+```
+
+### 2. Run the Interactive Prediction Script
+Execute the main model training script and launch the prediction interface:
+```bash
+python src/ipl_score_prediction_project.py
+```
+
+### 3. Run the Jupyter Notebook
+For interactive exploratory data analysis and IPyWidgets sliders:
 ```bash
 jupyter notebook "notebooks/IPL Score Prediction Project.ipynb"
 ```
 
-### 2. Python Script
-Run the source script directly to train the model and view test set metrics:
-```bash
-python src/ipl_score_prediction_project.py
-```
-*(Note: IPyWidgets require a Jupyter frontend to render interactively.)*
+---
 
-## Limitations & Future Improvements
-- **Limitations**: The model relies entirely on historical data up to the date of the dataset creation and does not factor in real-time player form, weather, or pitch degradation.
-- **Future Improvements**:
-  - Incorporate individual player statistics and form.
-  - Deploy the model as a web application using Flask, FastAPI, or Streamlit.
-  - Explore alternative algorithms like XGBoost or LightGBM for comparison.
+## Dataset Provenance & Third-Party Terms
+- **Dataset**: Historical ball-by-ball match data covering IPL seasons 2008 to 2017 (617 matches, 76,014 records).
+- **Source**: Kaggle (*"IPL Dataset Season 2008 to 2017"*).
+- **Third-Party Terms**: The dataset in [`data/ipl.csv`](./data/ipl.csv) is third-party historical sports data included for academic demonstration. The software license below applies exclusively to the repository code and documentation, and does not grant license rights over the underlying sports dataset. Refer to [`data/README.md`](./data/README.md) for full schema details.
+
+---
+
+## Limitations & Academic Scope
+- **Real-Time Context**: The model uses intermediate scorecard state (runs, wickets, overs, venue, teams) and does not ingest live weather telemetry, pitch degradation, bowler spell limits, or player form.
+- **Target Distribution**: Target values represent full 20-over innings totals and do not dynamically adjust for rain interruptions (DLS method) or mid-innings declarations.
+
+---
 
 ## License
-*Licensing terms have not been finalized by the project contributors. All rights reserved until an open-source license is explicitly added.*
+The code and documentation in this repository are released under the [MIT License](./LICENSE).
